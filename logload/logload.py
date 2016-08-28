@@ -32,7 +32,7 @@ class StaticSelection(Fragment):
         self.s = s
 
     def expand(self):
-        return s
+        return self.s
 
 from datetime import datetime
 
@@ -45,7 +45,7 @@ class Timestamp(Fragment):
 
 from re import VERBOSE
 
-from funcparserlib.lexer import make_tokenizer, Token, LexerError
+from funcparserlib.lexer import make_tokenizer, Token
 
 regexps = {
     'escaped': r'''
@@ -58,7 +58,7 @@ regexps = {
         ''',
 }
 
-def tokenize(str):
+def tokenize(string):
     """ str -> Sequence(Token) """
     specs = [
         ('Space', (r'[ \t\r\n]+', )),
@@ -68,11 +68,11 @@ def tokenize(str):
     ]
     empty = ['Space']
     t = make_tokenizer(specs)
-    return [x for x in t(str) if x.type not in empty]
+    return [x for x in t(string) if x.type not in empty]
 
 ### parser
 
-class NameError(Exception):
+class FunctionNameError(Exception):
     def __init__(self, name):
         self.name = name
     def __str__(self):
@@ -83,7 +83,7 @@ import re
 re_esc = re.compile(regexps[u'escaped'], VERBOSE)
 
 from funcparserlib.parser import (some, a, maybe, many, finished, skip,
-                                  forward_decl, NoParseError)
+                                  forward_decl)
 
 def parse(seq):
     tokval = lambda x: x.value
@@ -123,7 +123,7 @@ def parse(seq):
         elif n == "timestamp":
             return Timestamp()
         else:
-            raise NameError(n)
+            raise FunctionNameError(n)
     
     def make_string(n):
         return unescape(n[1:-1])
