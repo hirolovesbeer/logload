@@ -82,8 +82,7 @@ import re
 
 re_esc = re.compile(regexps[u'escaped'], VERBOSE)
 
-from funcparserlib.parser import (some, a, maybe, many, finished, skip,
-                                  forward_decl)
+from funcparserlib.parser import (some, maybe, many, finished, skip)
 
 def parse(seq):
     tokval = lambda x: x.value
@@ -113,7 +112,7 @@ def parse(seq):
             if m.group('standard') is not None:
                 return std[m.group('standard')]
             else:
-                return unichr(int(m.group('unicode'), 16))
+                return chr(int(m.group('unicode'), 16))
 
         return re_esc.sub(sub, s)
 
@@ -188,7 +187,7 @@ def main():
 
     addr = socket.getaddrinfo( args.host, args.port, proto=socket.IPPROTO_TCP )
     for res in addr:
-        af, socktype, proto, canonname, sa = res
+        af, socktype, proto, ignored, sa = res
         try:
             sock = socket.socket(af, socktype, proto)
         except OSError:
