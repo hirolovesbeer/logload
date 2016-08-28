@@ -187,7 +187,7 @@ def main():
 
     addr = socket.getaddrinfo( args.host, args.port, proto=socket.IPPROTO_TCP )
     for res in addr:
-        af, socktype, proto, ignored, sa = res
+        af, socktype, proto, dummy, sa = res
         try:
             sock = socket.socket(af, socktype, proto)
         except OSError:
