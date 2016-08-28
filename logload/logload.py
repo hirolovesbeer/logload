@@ -34,6 +34,13 @@ class StaticSelection(Fragment):
     def expand(self):
         return s
 
+from datetime import datetime
+
+class Timestamp(Fragment):
+    def expand(self):
+        dt = datetime.now()
+        return dt.isoformat()
+    
 ### tokenizer
 
 from re import VERBOSE
@@ -64,6 +71,12 @@ def tokenize(str):
     return [x for x in t(str) if x.type not in empty]
 
 ### parser
+
+class NameError(Exception):
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return "Name not available: " + self.name
 
 import re
 
@@ -105,7 +118,12 @@ def parse(seq):
         return re_esc.sub(sub, s)
 
     def make_name(n):
-        return RandomWord(n)
+        if n == "randword":
+            return RandomWord(n)
+        elif n == "timestamp":
+            return Timestamp()
+        else:
+            raise NameError(n)
     
     def make_string(n):
         return unescape(n[1:-1])
