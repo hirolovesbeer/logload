@@ -10,3 +10,4 @@ See the LICENSE file for license information.
 
 ![Landscape widget](https://landscape.io/github/ofosos/logload/master/landscape.svg?style=flat)
 
+[![Coverage Status](https://coveralls.io/repos/github/ofosos/logload/badge.svg?branch=master)](https://coveralls.io/github/ofosos/logload?branch=master)
