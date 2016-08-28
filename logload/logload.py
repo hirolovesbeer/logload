@@ -1,11 +1,27 @@
 
+import random
+
+from funcparserlib.lexer import make_tokenizer, Token, LexerError
+
+def tokenize(str):
+    """ str -> Sequence(Token) """
+    specs = [
+        (u'Space', (ur'[ \t\r\n]+', )),
+        (u'String', (ur'"(%(unescaped)s | %(escaped)s)*"' % regexps, VERBOSE)),
+        (u'Op', (ur'[\[\],]', )),
+        (u'Name', (ur'[A-Za-z_][A-Za-z_0-9]*',)),
+    ]
+    empty = [u'Space']
+    t = make_tokenizer(specs)
+    return [x for x in t(str) if x.type not in empty]
+
 class Fragment:
     def expand(self):
         return ""
 
 class RandomSelection(Fragment):
     def __init__(self, lis):
-        self.lis = random.shiffule(lis)
+        self.lis = random.shuffle(lis)
         self.length = len(lis)
         self.ptr = 0
 
