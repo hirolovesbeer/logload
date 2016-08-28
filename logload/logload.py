@@ -169,9 +169,66 @@ class LogLineGenerator:
         
     def lines(self, i):
         return [self.execute(self.spec) for x in range(i)]
-    
+
+import argparse
+import socket
+from time import clock, sleep, time
+
 def main():
-    pass
+    parser = argparse.ArgumentParser(description="Load-test syslog servers")
+    parser.add_argument('-H', dest='host', help='target to log to', default='localhost')
+    parser.add_argument('-p', dest='port', type=int, help='target port to log to', default=514)
+    parser.add_argument('-l', dest='pattern', help='logging pattern', required=True)
+    parser.add_argument('-r', dest='rate', help='log lines per second', type=int, default=1000)
+
+    args = parser.parse_args()
+
+    gen = LogLineGenerator()
+    gen.set_pattern(args.pattern)
+
+    addr = socket.getaddrinfo( args.host, args.port, proto=socket.IPPROTO_TCP )
+    for res in addr:
+        af, socktype, proto, canonname, sa = res
+        try:
+            sock = socket.socket(af, socktype, proto)
+        except OSError:
+            sock = None
+            continue
+        try:
+            sock.connect(sa)
+        except OSError:
+            sock.close()
+            sock = None
+            continue
+        break
+
+    if not sock:
+        print("Error could not connect to host!")
+        exit(1)
+
+    tot_lines = 0
+    start_time = time()
+    try:
+        nr_lines = args.rate
+        while True:
+            start = clock()
+            lines = gen.lines( nr_lines )
+            for line in lines:
+                sock.send(line.encode('utf-8'))
+                tot_lines = tot_lines + 1
+
+            dif = clock() - start
+            if dif < 1.0:
+                sleep(1 - dif)
+            
+                
+    except BrokenPipeError:
+        sock.close()
+        print("Peer closed connection! Exiting!")
+
+    runtime = max(1, int(time() - start_time))
+    fin_rate = tot_lines / runtime
+    print("Total lines sent: {}, runtime {}s, at {} lines/second.".format(tot_lines, runtime, fin_rate))
 
 if __name__ == "__main__":
     main()
