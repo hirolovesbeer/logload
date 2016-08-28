@@ -22,9 +22,10 @@ class RandomSelection(Fragment):
 class RandomWord(Fragment):
     def __init__(self, name):
         self.name = name
+        with open('logload/words.txt') as x: self.words = x.readlines()
 
     def expand(self):
-        return "42"
+        return random.choice(self.words)
     
 class StaticSelection(Fragment):
     def __init__(self, s):
