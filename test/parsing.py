@@ -33,7 +33,7 @@ class TestParser(unittest.TestCase):
         logload.parse(logload.tokenize("( \"foobar\" )"))
 
     def test_empty_group(self):
-        logload.parse(logload.tokenize("[ \"foobar\", rand ]"))
+        logload.parse(logload.tokenize("[ \"foobar\", randword, timestamp ]"))
 
     def test_nested_group1(self):
         logload.parse(logload.tokenize('( [ "bar", "baz" ] )'))
