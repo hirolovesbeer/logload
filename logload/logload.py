@@ -82,7 +82,7 @@ import re
 
 re_esc = re.compile(regexps[u'escaped'], VERBOSE)
 
-from funcparserlib.parser import (some, maybe, many, finished, skip)
+from funcparserlib.parser import (some, maybe, many, finished, skip, a)
 
 def parse(seq):
     tokval = lambda x: x.value
