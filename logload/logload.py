@@ -8,7 +8,8 @@ class Fragment:
 
 class RandomSelection(Fragment):
     def __init__(self, lis):
-        self.lis = random.shuffle(lis)
+        self.lis = lis
+        random.shuffle(self.lis)
         self.length = len(lis)
         self.ptr = 0
 
@@ -16,8 +17,15 @@ class RandomSelection(Fragment):
         self.ptr = self.ptr + 1
         if self.ptr >= self.length:
             self.ptr = 0
-        return self.lis[ptr]
+        return self.lis[self.ptr]
 
+class RandomWord(Fragment):
+    def __init__(self, name):
+        self.name = name
+
+    def expand(self):
+        return "42"
+    
 class StaticSelection(Fragment):
     def __init__(self, s):
         self.s = s
@@ -71,15 +79,15 @@ def parse(seq):
 
     def make_group(n):
         if n is None:
-            return ['grp']
+            return RandomSelection([])
         else:
-            return ['grp', n[0]] + n[1]
+            return RandomSelection([n[0]] + n[1])
 
     def make_list(n):
         if n is None:
-            return ['lis']
+            return []
         else:
-            return ['lis', n[0]] + n[1]
+            return [n[0]] + n[1]
         
     def unescape(s):
         std = {
@@ -96,43 +104,52 @@ def parse(seq):
         return re_esc.sub(sub, s)
 
     def make_name(n):
-        return n
+        return RandomWord(n)
     
     def make_string(n):
         return unescape(n[1:-1])
 
     name = toktype('Name') >> make_name
     string = toktype('String') >> make_string
-    value = forward_decl()
-
+    atom = string | name
+    
     group = (
         op_('[') +
-        maybe(value + many(op_(',') + value)) +
+        maybe(atom + many(op_(',') + atom)) +
         op_(']')
         >> make_group)
 
+    value = atom | group
+    
     lis = (
         op_('(') +
         maybe(value + many(op_(',') + value)) +
         op_(')')
         >> make_list)
 
-    value.define(string | name)
-    
-    logload = lis | group
+    logload = lis | value
     logload_text = logload + skip(finished)
 
     return logload_text.parse(seq)
 
 ### main & options
-    
+
 class LogLineGenerator:
 
-    def set_pattern(pat):
+    def set_pattern(self, pat):
         self.spec = parse(tokenize(pat))
 
-    def lines(i):
-        pass
+    def execute(self, spec):
+        if type(spec) is list:
+            return ''.join([ self.execute(sp) for sp in spec])
+        if type(spec) is str:
+            return spec
+        if isinstance(spec, Fragment):
+            return spec.expand()
+        
+        
+    def lines(self, i):
+        return [self.execute(self.spec) for x in range(i)]
     
 def main():
     pass

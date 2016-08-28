@@ -15,6 +15,9 @@ class TestTokenizer(unittest.TestCase):
     def test_list(self):
         logload.tokenize("( \"foo\", glorg )")
 
+    def test_nested_group(self):
+        logload.tokenize('( "foo" [ "bar", "baz" ] )')
+        
     def test_empty(self):
         logload.tokenize("")
 
@@ -31,6 +34,12 @@ class TestParser(unittest.TestCase):
 
     def test_empty_group(self):
         logload.parse(logload.tokenize("[ \"foobar\", rand ]"))
+
+    def test_nested_group1(self):
+        logload.parse(logload.tokenize('( [ "bar", "baz" ] )'))
+
+    def test_nested_group2(self):
+        logload.parse(logload.tokenize('( "foo", [ "bar", "baz" ] )'))
         
 if __name__ == "__main__":
     unittest.main()
