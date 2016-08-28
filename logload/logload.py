@@ -1,19 +1,39 @@
 
 import random
 
+### tokenizer
+
+from re import VERBOSE
+
 from funcparserlib.lexer import make_tokenizer, Token, LexerError
+
+regexps = {
+    'escaped': r'''
+        \\                                  # Escape
+          ((?P<standard>["\\/bfnrt])        # Standard escapes
+        | (u(?P<unicode>[0-9A-Fa-f]{4})))   # uXXXX
+        ''',
+    'unescaped': r'''
+        [^"\\]                              # Unescaped: avoid ["\\]
+        ''',
+}
 
 def tokenize(str):
     """ str -> Sequence(Token) """
     specs = [
-        (u'Space', (ur'[ \t\r\n]+', )),
-        (u'String', (ur'"(%(unescaped)s | %(escaped)s)*"' % regexps, VERBOSE)),
-        (u'Op', (ur'[\[\],]', )),
-        (u'Name', (ur'[A-Za-z_][A-Za-z_0-9]*',)),
+        ('Space', (r'[ \t\r\n]+', )),
+        ('String', (r'"(%(unescaped)s | %(escaped)s)*"' % regexps, VERBOSE)),
+        ('Op', (r'[\[\],]', )),
+        ('Name', (r'[A-Za-z_][A-Za-z_0-9]*',)),
     ]
-    empty = [u'Space']
+    empty = ['Space']
     t = make_tokenizer(specs)
     return [x for x in t(str) if x.type not in empty]
+
+### parser
+
+
+### generator
 
 class Fragment:
     def expand(self):
@@ -46,6 +66,8 @@ class LogLineGenerator:
     def lines(i):
         pass
 
+### main & options
+    
 def main():
     pass
 
