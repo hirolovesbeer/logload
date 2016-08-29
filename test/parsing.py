@@ -33,6 +33,13 @@ class TestParser(unittest.TestCase):
         logload.parse(logload.tokenize("( \"foobar\" )"))
 
     def test_empty_group(self):
+        logload.parse(logload.tokenize('[ ]'))
+
+    @unittest.expectedFailure
+    def test_nonexisting_function(self):
+        logload.parse(logload.tokenize('"foobar", blorp'))
+        
+    def test_simple_group(self):
         logload.parse(logload.tokenize("[ \"foobar\", randword, timestamp ]"))
 
     def test_nested_group1(self):
