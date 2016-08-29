@@ -173,19 +173,17 @@ import argparse
 import socket
 from time import clock, sleep, time
 
-def main():
-    parser = argparse.ArgumentParser(description="Load-test syslog servers")
-    parser.add_argument('-H', dest='host', help='target to log to', default='localhost')
-    parser.add_argument('-p', dest='port', type=int, help='target port to log to', default=514)
-    parser.add_argument('-l', dest='pattern', help='logging pattern', required=True)
-    parser.add_argument('-r', dest='rate', help='log lines per second', type=int, default=1000)
+class ConnectFailedError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
 
-    args = parser.parse_args()
+    def __str__(self):
+        return "Failed to connect: {}".format(self.msg)
 
-    gen = LogLineGenerator()
-    gen.set_pattern(args.pattern)
+def get_client_sock(host, port):
+    sock = None
+    addr = socket.getaddrinfo( host, port, proto=socket.IPPROTO_TCP )
 
-    addr = socket.getaddrinfo( args.host, args.port, proto=socket.IPPROTO_TCP )
     for res in addr:
         af, socktype, proto, dummy, sa = res
         try:
@@ -202,7 +200,27 @@ def main():
         break
 
     if not sock:
-        print("Error could not connect to host!")
+        raise ConnectFailedError("could not connect")
+
+    return sock
+
+def main():
+    parser = argparse.ArgumentParser(description="Load-test syslog servers")
+    parser.add_argument('-H', dest='host', help='target to log to', default='localhost')
+    parser.add_argument('-p', dest='port', type=int, help='target port to log to', default=514)
+    parser.add_argument('-l', dest='pattern', help='logging pattern', required=True)
+    parser.add_argument('-r', dest='rate', help='log lines per second', type=int, default=1000)
+
+    args = parser.parse_args()
+
+    gen = LogLineGenerator()
+    gen.set_pattern(args.pattern)
+
+    sock = None
+    try:
+        sock = get_client_sock(args.host, args.port)
+    except ConnectFailedError as e:
+        print("{}\n".format(e))
         exit(1)
 
     tot_lines = 0
@@ -219,8 +237,7 @@ def main():
             dif = clock() - start
             if dif < 1.0:
                 sleep(1 - dif)
-            
-                
+
     except BrokenPipeError:
         sock.close()
         print("Peer closed connection! Exiting!")
