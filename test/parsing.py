@@ -1,5 +1,6 @@
 import unittest
 
+from funcparserlib.parser import NoParseError
 from logload import logload
 
 class TestTokenizer(unittest.TestCase):
@@ -22,9 +23,9 @@ class TestTokenizer(unittest.TestCase):
         logload.tokenize("")
 
 class TestParser(unittest.TestCase):
-    @unittest.expectedFailure
     def test_empty(self):
-        logload.parse(logload.tokenize(""))
+        with self.assertRaises(NoParseError):
+            logload.parse(logload.tokenize(""))
 
     def test_empty_list(self):
         logload.parse(logload.tokenize("( )"))
@@ -35,9 +36,9 @@ class TestParser(unittest.TestCase):
     def test_empty_group(self):
         logload.parse(logload.tokenize('[ ]'))
 
-    @unittest.expectedFailure
     def test_nonexisting_function(self):
-        logload.parse(logload.tokenize('"foobar", blorp'))
+        with self.assertRaises(NoParseError):
+            logload.parse(logload.tokenize('"foobar", blorp'))
         
     def test_simple_group(self):
         logload.parse(logload.tokenize("[ \"foobar\", randword, timestamp ]"))
