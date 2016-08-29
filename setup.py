@@ -28,11 +28,6 @@ setup(
     keywords='network syslog testing load',
     packages=find_packages(exclude=['test', 'docs', 'contrib']),
     install_requires=['funcparserlib'],
-    extra_require={
-        'test': [
-            'coverage'
-        ],
-    },
     include_package_data=True,
     entry_points={
         'console_scripts': [
