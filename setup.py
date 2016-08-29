@@ -34,4 +34,5 @@ setup(
             'logload=logload.logload:main'
         ],
     },
+    test_suite="test",
 )
