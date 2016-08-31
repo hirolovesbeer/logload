@@ -1,6 +1,10 @@
 logload
 =======
 
+.. image:: https://badges.gitter.im/logload/Lobby.svg
+   :alt: Join the chat at https://gitter.im/logload/Lobby
+   :target: https://gitter.im/logload/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
 A syslog network load generator.
 
 Requires funcparserlib and a bunch of the standard lib. Tested on Python 3.
